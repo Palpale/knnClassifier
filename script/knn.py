@@ -14,10 +14,26 @@ def read_data(file):
     return(data)
     
 #KNN classifier
-def knn_classifier(train_img, train_lbl, test_img, k):
+def knn_classifier(train_img, train_lbl, test_img, k, test_lbl=None):
     nbImgTest = test_img.shape[0]
     nbImgTrain = train_img.shape[0]
 
+    #Errors detection
+    if(test_img.shape[1] != train_img.shape[1]):
+        print("Error train and test don't have same dimension")
+        exit(1)
+    if(train_lbl.shape[0] != nbImgTrain):
+        print("Error number of label must coinced with number of train images")
+        exit(1)
+    if(k <= 0):
+        print("Error k must be > 1")
+        exit(1)
+    if(test_lbl and (test_lbl.shape[0] != train_lbl.shape[0])):
+        print("Error number of label must coinced with number of test images")
+        exit(1)
+
+        
+    #progress bar to know where the programm is
     bar = Bar('Processing', max=nbImgTest)
 
     norm = np.zeros(shape=(nbImgTest, nbImgTrain))
@@ -28,10 +44,11 @@ def knn_classifier(train_img, train_lbl, test_img, k):
         for j in range(0, nbImgTrain):
             norm[i,j] = euclidean_dist_img(train_img[j,:], test_img[i,:])
 
+    bar.finish()
     ind  = np.argsort(norm, axis=1) #sort norm by indices
 
-    #remove comment if you want to save the indices
-    #np.savetxt("../result/fullbyind.csv", ind, delimiter=',')
+    #remove comment if you want to save indices (for kmax = 100)
+    #np.savetxt("../result/fullbyind.csv", ind[:,0:100], delimiter=',')
 
 
     temp = train_lbl[ind[:, 0:k]] #take the k first indice (k neirest images)
@@ -41,11 +58,18 @@ def knn_classifier(train_img, train_lbl, test_img, k):
     for x in range(0, nbImgTest):
         result[x] = np.bincount(temp[x,:]).argmax()
 
+    #compute the error
+    if(test_lbl):
+        err = compute_error(result, test_lbl)
+        print "error (%) = " + str(err)
+
     return result
     
 def compute_error(result, labels):
     return np.mean(result != labels)*100
 
+def compute_error_digits(result,labels):
+    err_by_digits = np.zeros()
 
 def euclidean_dist_img(img1, img2):
     if(img1.shape != img2.shape):
@@ -68,9 +92,5 @@ if __name__ == "__main__":
     k = 3
 
     #compute the knn classifier
-    final = knn_classifier(training_set_images, training_set_labels, test_set_images[1:200,:], k)
+    final = knn_classifier(training_set_images, training_set_labels, test_set_images[0:10000,:], k)
     np.savetxt("../result/resultk" + str(k) + ".csv", final, delimiter=',')
-
-    #compute the error
-    err = compute_error(final, test_set_labels[1:200])
-    print err
