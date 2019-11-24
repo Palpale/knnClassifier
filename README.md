@@ -11,3 +11,17 @@ This Package is organized with 3 folders :
 
 In order to see how work the kNN classifier you have to open knn.py. 
 For analyzing the result for different k and all the data set (10k images) you should run plot.py
+
+### Librairies dependences
+
+You need to have numpy, and matplotlib on you computer. For that :
+
+```sh
+$ sudo apt-get install python-numpy python-scipy python-matplotlib
+```
+In order to execute python script:
+```sh
+$ cd script
+$ python knn.py
+$ python plot.py
+```
