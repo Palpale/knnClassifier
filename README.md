@@ -1,4 +1,4 @@
-# Project Title
+# kNN Classifier on Python
 
 The purpose of this package is to recognize handwritting number by using a kNN Classifier
 
