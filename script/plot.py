@@ -48,7 +48,7 @@ if __name__ == "__main__":
     test_lbl = read_data("../mnist/t10k-labels.csv")
     train_lbl = read_data("../mnist/train-labels.csv")
 
-    kmax = 10
+    kmax = 50
 
     #compute all result and error for k 1 -> kmax
     nbImgTest = test_lbl.shape[0]
