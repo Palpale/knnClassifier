@@ -48,12 +48,14 @@ if __name__ == "__main__":
     test_lbl = read_data("../mnist/t10k-labels.csv")
     train_lbl = read_data("../mnist/train-labels.csv")
 
-    #compute all result and error for k 1 -> 100
-    nbImgTest = test_lbl.shape[0]
-    errork = np.zeros(shape=(100, 1))
-    errorkByDigit = np.zeros(shape=(10, 100))
+    kmax = 10
 
-    for k in range(1, 100):
+    #compute all result and error for k 1 -> kmax
+    nbImgTest = test_lbl.shape[0]
+    errork = np.zeros(shape=(kmax, 1))
+    errorkByDigit = np.zeros(shape=(10, kmax))
+
+    for k in range(1, kmax + 1):
         temp = train_lbl[ind_test[:, 0:k]]
         temp = temp.astype(int)
         temp = np.squeeze(temp, axis=2) #remove 1 dimension useless
@@ -65,9 +67,52 @@ if __name__ == "__main__":
             result[x] = np.bincount(temp[x,:]).argmax()
         
         #compute the error
-        errork[k] = compute_error(result, test_lbl)
+        errork[k-1] = compute_error(result, test_lbl)
 
         #compite the error by digit
-        errorkByDigit[:,k] = np.squeeze(compute_error_digits(np.squeeze(result), np.squeeze(test_lbl)))
+        errorkByDigit[:,k-1] = np.squeeze(compute_error_digits(np.squeeze(result), np.squeeze(test_lbl)))
 
+    ##Plot results
+    karray = np.arange(1, kmax + 1)
+    names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+    #plot error for k
+    plt.figure()
+    plt.title("Percentage of error in function of k")
+    plt.xlabel("k")
+    plt.ylabel("Percentage of error")
+    plt.grid(True)
+    plt.plot(karray, errork)
+
+    plt.suptitle("kNN Classifier on 10k test images with a training on 60k images")
+    plt.show()
     
+    #plot error by digit
+    plt.figure()
+    plt.title("Percentage of error for each digit for k = 3")
+    plt.xlabel("digits")
+    plt.ylabel("Percentage of error")
+    plt.bar(names, errorkByDigit[:, 2])
+    plt.suptitle("kNN Classifier on 10k test images with a training on 60k images")
+    plt.show()
+
+    #plot error for each k for each digit
+    fig, ax = plt.subplots()
+    plt.title("Percentage of error in function of k for each digit")
+    plt.xlabel("k")
+    plt.title("Percentage of error in function of k")
+    plt.grid(True)
+    ax.plot(karray, errorkByDigit[0,:], 'b', label='digit 0')
+    ax.plot(karray, errorkByDigit[1,:], 'g', label='digit 1')
+    ax.plot(karray, errorkByDigit[2,:], 'r', label='digit 2')
+    ax.plot(karray, errorkByDigit[3,:], 'c', label='digit 3')
+    ax.plot(karray, errorkByDigit[4,:], 'm', label='digit 4')
+    ax.plot(karray, errorkByDigit[5,:], 'y', label='digit 5')
+    ax.plot(karray, errorkByDigit[6,:], 'k', label='digit 6')
+    ax.plot(karray, errorkByDigit[7,:], 'b--', label='digit 7')
+    ax.plot(karray, errorkByDigit[8,:], 'g--', label='digit 8')
+    ax.plot(karray, errorkByDigit[9,:], 'r--', label='digit 9')
+    legend = ax.legend(loc='upper right')
+
+    plt.suptitle("kNN Classifier on 10k test images with a training on 60k images")
+    plt.show()
